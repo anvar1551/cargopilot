@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Bell, User } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // new
-// import { useRouter } from "next/navigation";
+import { Bell } from "lucide-react";
+import { UserDropdown } from "./UserDropdown";
 
 export const CustomerTopbar = () => {
   return (
@@ -24,12 +23,7 @@ export const CustomerTopbar = () => {
         </Button>
 
         {/* Avatar */}
-        <Avatar>
-          <AvatarImage src="" alt="User avatar" />
-          <AvatarFallback>
-            <User className="w-6 h-6" />
-          </AvatarFallback>
-        </Avatar>
+        <UserDropdown />
       </div>
     </header>
   );

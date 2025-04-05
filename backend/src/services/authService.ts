@@ -34,19 +34,17 @@ export const registerUser = async ({
 export const loginUser = async (
   email: string,
   password: string
-): Promise<{ token: string; role: string }> => {
+): Promise<{ token: string; role: string; user: IUser }> => {
   const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error("Invalid credentials");
-  }
+  if (!user) throw new Error("Invalid credentials");
+
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error("Invalid credentials");
-  }
+  if (!isMatch) throw new Error("Invalid credentials");
+
   const payload = { id: user._id, role: user.role };
-  // Ensure that process.env.JWT_SECRET is defined
   const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: "1d",
   });
-  return { token, role: user.role };
+
+  return { token, role: user.role, user };
 };

@@ -24,10 +24,15 @@ export const login = async (
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const { token, role } = await loginUser(email, password);
-    res
-      .status(200)
-      .json({ message: "Login successful", status: 200, token, role });
+    const { token, role, user } = await loginUser(email, password);
+
+    res.status(200).json({
+      message: "Login successful",
+      status: 200,
+      token,
+      role,
+      user, // 👈 this is what frontend needs
+    });
   } catch (error: any) {
     next(error);
   }
