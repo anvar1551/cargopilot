@@ -3,6 +3,18 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DriverTab } from "./DriverTab";
 import TrackingTimeline from "./TrackingTimeline";
+import { useEffect, useState } from "react";
+import apiClient from "@/lib/apiClient";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Button } from "../ui/button";
+import { IDriver } from "@/types/driver";
+import { toast } from "sonner";
 
 // interface OrderDetailsTabsProps {
 //   orderId: string;
@@ -13,6 +25,41 @@ interface OrderDetailsTabsProps {
 }
 
 export function OrderDetailsTabs({ order }: OrderDetailsTabsProps) {
+  const [drivers, setDrivers] = useState<IDriver[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDriverId, setSelectedDriverId] = useState("");
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const res = await apiClient.get("/manager/drivers");
+        setDrivers(res.data.data);
+      } catch (error) {
+        console.error("Failed to fetch drivers", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!order.assignedDriver) {
+      fetchDrivers();
+    }
+  }, [order.assignedDriver]);
+
+  const handleAssignDriver = async () => {
+    try {
+      await apiClient.patch(`/manager/orders/${order._id}/assign-driver`, {
+        driverId: selectedDriverId,
+      });
+      toast.success("Driver assigned successfully");
+      setSelectedDriverId("");
+      window.location.reload(); // or refetch order if you use SWR/React Query
+    } catch (error) {
+      toast.error("Failed to assign driver");
+      console.error(error);
+    }
+  };
+
   return (
     <Tabs defaultValue="info" className="w-full">
       <TabsList className="mb-4">
@@ -105,7 +152,52 @@ export function OrderDetailsTabs({ order }: OrderDetailsTabsProps) {
       </TabsContent>
 
       <TabsContent value="driver">
-        <DriverTab driver={order.assignedDriver} />
+        <div className="p-6 rounded-lg bg-white shadow-md space-y-4">
+          <h2 className="text-xl font-semibold mb-2">Driver Info</h2>
+
+          {order.assignedDriver ? (
+            <>
+              <p>
+                <strong>Name:</strong> {order.assignedDriver.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {order.assignedDriver.email}
+              </p>
+              <p>
+                <strong>Role:</strong> {order.assignedDriver.role}
+              </p>
+            </>
+          ) : (
+            <>
+              {loading ? (
+                <p>Loading available drivers...</p>
+              ) : (
+                <>
+                  <Select onValueChange={setSelectedDriverId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select driver to assign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {drivers.map((driver) => (
+                        <SelectItem key={driver._id} value={driver._id}>
+                          {driver.name} ({driver.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    onClick={handleAssignDriver}
+                    disabled={!selectedDriverId}
+                    className="mt-2"
+                  >
+                    Assign Driver
+                  </Button>
+                </>
+              )}
+            </>
+          )}
+        </div>
       </TabsContent>
 
       <TabsContent value="customer">

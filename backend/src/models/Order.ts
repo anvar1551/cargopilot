@@ -27,6 +27,8 @@ export interface IOrder extends Document {
   assignedDriver?: Types.ObjectId;
   currentWarehouse?: string;
   tracking: ITrackingEvent[];
+  sorted: boolean;
+  pickupConfirmedByWarehouse: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +67,8 @@ const orderSchema = new Schema<IOrder>(
     assignedDriver: { type: Schema.Types.ObjectId, ref: "User" },
     currentWarehouse: { type: String },
     tracking: { type: [trackingEventSchema], default: [] },
+    pickupConfirmedByWarehouse: { type: Boolean, default: false },
+    sorted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

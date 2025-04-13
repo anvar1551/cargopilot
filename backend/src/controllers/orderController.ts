@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as orderService from "../services/orderService";
+import User from "../models/User";
+import Order from "../models/Order";
 
 export const createOrder = async (
   req: Request,
@@ -142,6 +144,76 @@ export const updateOrderStatus = async (
       .status(200)
       .json({ message: "Order status updated successfully", status, order });
   } catch (error: any) {
+    next(error);
+  }
+};
+
+export const assignDriver = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { orderId } = req.params;
+    const { driverId } = req.body;
+
+    if (!driverId) {
+      res.status(400).json({ message: "Driver ID is required", status: 400 });
+      return;
+    }
+
+    // Check if the driver exists and has the role 'driver'
+    const driver = await User.findById(driverId);
+    if (!driver || driver.role !== "driver") {
+      res.status(404).json({ message: "Valid driver not found", status: 404 });
+      return;
+    }
+
+    const order = await orderService.getOrderById(orderId);
+    if (!order) {
+      res.status(404).json({ message: "Order not found", status: 404 });
+      return;
+    }
+
+    order.assignedDriver = driverId;
+    await order.save();
+
+    res.status(200).json({
+      message: "Driver assigned successfully",
+      status: 200,
+      order,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const markOrdersAsSorted = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { orderIds } = req.body;
+
+    if (!Array.isArray(orderIds) || orderIds.length === 0) {
+      res
+        .status(400)
+        .json({ message: "orderIds must be a non-empty array", status: 400 });
+      return;
+    }
+
+    const result = await Order.updateMany(
+      { _id: { $in: orderIds } },
+      { $set: { sorted: true } }
+    );
+
+    res.status(200).json({
+      message: "Orders marked as sorted",
+      status: 200,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
     next(error);
   }
 };

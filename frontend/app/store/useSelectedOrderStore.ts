@@ -1,15 +1,10 @@
 // store/useSelectedOrderStore.ts
+import { IOrder } from "@/types/order";
 import { create } from "zustand";
 
-interface Order {
-  id: string;
-  status: string;
-  // add more fields as needed
-}
-
 interface Store {
-  selectedOrder: Order | null;
-  selectOrder: (order: Order) => void;
+  selectedOrder: IOrder | null;
+  selectOrder: (order: IOrder | null) => void;
 }
 
 export const useSelectedOrderStore = create<Store>((set) => ({

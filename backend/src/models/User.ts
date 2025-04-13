@@ -1,10 +1,11 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  role: "customer" | "manager" | "pickpoint" | "driver";
+  role: "customer" | "manager" | "pickpoint" | "driver" | "warehouse";
+  warehouse?: Types.ObjectId;
   vehicle: {
     model: string;
     plateNumber: string;
@@ -19,8 +20,15 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["customer", "manager", "pickpoint", "driver"],
+      enum: ["customer", "manager", "pickpoint", "driver", "warehouse"],
       default: "customer",
+    },
+    warehouse: {
+      type: Schema.Types.ObjectId,
+      ref: "Warehouse",
+      required: function () {
+        return this.role === "warehouse";
+      },
     },
     vehicle: {
       model: String,

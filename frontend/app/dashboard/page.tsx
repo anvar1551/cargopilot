@@ -13,6 +13,7 @@ export default function DashboardHome() {
     if (role === "customer") router.push("/dashboard/customer");
     if (role === "manager") router.push("/dashboard/manager");
     if (role === "driver") router.push("/dashboard/driver");
+    if (role === "warehouse") router.push("/dashboard/warehouse");
   }, [role, router]);
 
   return <p>Redirecting...</p>;

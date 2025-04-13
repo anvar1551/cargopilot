@@ -120,3 +120,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .select-item,
+  .command-item,
+  .dropdown-item,
+  .context-menu-item,
+  .combobox-item {
+    @apply cursor-pointer px-3 py-2 text-sm rounded-md transition-colors;
+    @apply hover:bg-accent hover:text-accent-foreground;
+    @apply focus:bg-accent focus:text-accent-foreground;
+  }
+}

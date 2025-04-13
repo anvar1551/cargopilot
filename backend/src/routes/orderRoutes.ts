@@ -4,9 +4,11 @@ import {
   createOrder,
   getMyOrders,
   getOrder,
+  markOrdersAsSorted,
   updateOrderStatus,
 } from "../controllers/orderController";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { managerOrWarehouseMiddleware } from "../middlewares/managerOrWarehouseMiddleware";
 
 const router = Router();
 
@@ -24,5 +26,12 @@ router.post("/:id/tracking", authMiddleware, addTracking);
 // Update order status (new protected route)
 // This endpoint uses the PATCH HTTP method to update the status field
 router.patch("/:id/status", authMiddleware, updateOrderStatus);
+
+router.patch(
+  "/mark-sorted",
+  authMiddleware,
+  managerOrWarehouseMiddleware,
+  markOrdersAsSorted
+);
 
 export default router;

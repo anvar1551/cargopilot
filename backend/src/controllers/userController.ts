@@ -18,7 +18,13 @@ export const changeUserRole = async (
     }
 
     // Allowed roles check.
-    const allowedRoles = ["customer", "manager", "pickpoint", "driver"];
+    const allowedRoles = [
+      "customer",
+      "manager",
+      "pickpoint",
+      "driver",
+      "warehouse",
+    ];
     if (!allowedRoles.includes(newRole)) {
       res.status(400).json({ message: "Invalid role provided", status: 400 });
       return;
@@ -31,13 +37,11 @@ export const changeUserRole = async (
       return;
     }
 
-    res
-      .status(200)
-      .json({
-        message: "User role updated successfully",
-        status: 200,
-        user: updatedUser,
-      });
+    res.status(200).json({
+      message: "User role updated successfully",
+      status: 200,
+      user: updatedUser,
+    });
   } catch (error: any) {
     next(error);
   }
